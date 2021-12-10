@@ -1,42 +1,47 @@
-<script>
-  import { onMount } from 'svelte'
-  import { format } from 'date-fns'
+<script context="module">
+  import { format } from "date-fns";
+  const entryId = format(new Date(), "yyyyMMdd");
 
-  let entry = {
+  export async function load({ fetch }) {
+    const result = await fetch(`/get?entry=${entryId}`);
+
+    if (result.ok) {
+      return {
+        props: {
+          entry: await result.json(),
+        },
+      };
+    }
+    return {
+      status: result.status,
+    };
+  }
+</script>
+
+<script>
+  export let entry = {
+    type: 'entry',
     breakfast: 0,
     lunch: 0,
     dinner: 0,
-    snacks: 0
-  }
-  
-  const entryId = format(new Date(), 'yyyyMMdd')
-
-  onMount(async () => {
-    const result = await fetch(`/get?entry=${entryId}`)
-    if (result.ok) {
-      entry = await result.json()
-    }
-  })
+    snacks: 0,
+    steps: 0
+  };
 
   function sum(nums) {
-    const add = (a,b) => a + b
-    return nums.reduce(add, 0)
+    const add = (a, b) => a + b;
+    return nums.reduce(add, 0);
   }
 
-  $: total = sum([
-    entry.breakfast, 
-    entry.lunch, 
-    entry.dinner, 
-    entry.snacks
-  ])
-  
+  $: total = sum([entry.breakfast, entry.lunch, entry.dinner, entry.snacks]);
 </script>
+
 <header>
-  <nav style="float: right;">
-    <a href='/edit'>Edit</a>
+  <nav>
+    <a href="/hx">Hx</a>
+    <a href="/edit">Edit</a>
   </nav>
   <h1>Food Journal</h1>
-
 </header>
 <main>
   <section>
@@ -61,13 +66,13 @@
           <th>Snacks</th>
           <td>{entry.snacks}</td>
         </tr>
-
       </table>
     </div>
     <div class="top-5">Steps</div>
-    <div class="big">5970</div>
+    <div class="big">{entry.steps}</div>
   </section>
 </main>
+
 <style>
   section {
     display: flex;
@@ -80,5 +85,10 @@
   }
   .top-5 {
     margin-top: 40px;
+  }
+  nav {
+    float: right;
+    display: flex;
+    gap: 8px;
   }
 </style>
