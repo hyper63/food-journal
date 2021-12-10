@@ -1,14 +1,11 @@
 <script context="module">
-  import { format } from "date-fns";
-  const today = format(new Date(), "MM/dd/yyyy");
-
-  export async function load({ fetch }) {
-    const result = await fetch(`/api/entries/query?date=${today}&limit=1`);
+  export async function load({ page, fetch }) {
+    const result = await fetch(`/api/entries/${page.query.get("entry")}`);
 
     if (result.ok) {
       return {
         props: {
-          entry: await result.json().then(({ docs }) => docs[0]),
+          entry: await result.json(),
         },
       };
     }

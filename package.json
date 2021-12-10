@@ -15,7 +15,9 @@
   },
   "type": "module",
   "dependencies": {
+    "cuid": "^2.1.8",
     "date-fns": "^2.27.0",
-    "hyper-connect": "^0.1.8"
+    "hyper-connect": "^0.1.8",
+    "zod": "^3.11.6"
   }
 }

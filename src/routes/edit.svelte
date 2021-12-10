@@ -1,9 +1,7 @@
 <script context="module">
-  import { format } from "date-fns";
-  const entryId = format(new Date(), "yyyyMMdd");
-
-  export async function load({ fetch }) {
-    const result = await fetch(`/get?entry=${entryId}`);
+  export async function load({ page, fetch }) {
+    const id = page.query.get('entry') 
+    const result = await fetch(`/api/entries/${id}`);
 
     if (result.ok) {
       return {
@@ -15,7 +13,7 @@
     return {
       status: result.status,
       entry: {
-        id: `entry-${entryId}`,
+        id,
         breakfast: 0,
         lunch: 0,
         dinner: 0,
@@ -31,7 +29,7 @@
   export let entry;
 
   async function handleSubmit() {
-    const result = await fetch("/update", {
+    const result = await fetch(`/api/entries/${entry.id}`, {
       method: "PUT",
       headers: {
         "content-type": "application/json",
@@ -54,30 +52,30 @@
 </header>
 <main>
   <div class="mb-2">Calories for 12/10/2021</div>
-  <form on:submit|preventDefault={handleSubmit}>
+  <form method="POST" action="/api/entries/{entry.id}" on:submit|preventDefault={handleSubmit}>
     <div>
       <label for="date">Date</label>
-      <input type="date" id="date" bind:value={entry.date} />
+      <input type="date" id="date" name="date" bind:value={entry.date} />
     </div>
     <div>
       <label for="breakfast">Breakfast</label>
-      <input id="breakfast" type="number" bind:value={entry.breakfast} />
+      <input id="breakfast" type="number" name="breakfast" bind:value={entry.breakfast} />
     </div>
     <div>
       <label for="lunch">Lunch</label>
-      <input id="lunch" type="number" bind:value={entry.lunch} />
+      <input id="lunch" type="number" name="lunch" bind:value={entry.lunch} />
     </div>
     <div>
       <label for="dinner">Dinner</label>
-      <input id="dinner" type="number" bind:value={entry.dinner} />
+      <input id="dinner" type="number" name="dinner" bind:value={entry.dinner} />
     </div>
     <div>
       <label for="snacks">Snacks</label>
-      <input id="snacks" type="number" bind:value={entry.snacks} />
+      <input id="snacks" type="number" name="snacks" bind:value={entry.snacks} />
     </div>
     <div>
       <label for="steps">Steps</label>
-      <input id="steps" type="number" bind:value={entry.steps} />
+      <input id="steps" type="number" name="steps" bind:value={entry.steps} />
     </div>
     <div>
       <button>Update</button>
