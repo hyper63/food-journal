@@ -3,7 +3,7 @@ tasks:
   - init: yarn
     command: |
       export HMR_HOST=`gp url 3000`
-      yarn dev
+      echo 'setup your .env file then run yarn dev'
 
 # List the ports to expose. Learn more https://www.gitpod.io/docs/config-ports/
 ports:

@@ -1,21 +1,47 @@
 <script context="module">
   import { format } from "date-fns";
-  const today = format(new Date(), "MM/dd/yyyy");
+  import cuid from "cuid";
+
+  const today = format(new Date(), "yyyy-MM-dd");
 
   export async function load({ fetch }) {
     const result = await fetch(`/api/entries/query?date=${today}&limit=1`);
 
     if (result.ok) {
+      let entry = await result.json().then(({ docs }) => docs[0]);
+      if (!entry) {
+        entry = {
+          id: `entry-${cuid()}`,
+          date: today,
+          type: "entry",
+          calories: 0,
+          breakfast: 0,
+          lunch: 0,
+          dinner: 0,
+          snacks: 0,
+          steps: 0,
+        };
+      }
       return {
         props: {
-          entry: await result.json().then(({ docs }) => docs[0]),
+          entry,
         },
       };
     }
     return {
       status: result.status,
       props: {
-        entry: {},
+        entry: {
+          id: `entry-${cuid()}`,
+          date: today,
+          type: "entry",
+          calories: 0,
+          breakfast: 0,
+          lunch: 0,
+          dinner: 0,
+          snacks: 0,
+          steps: 0,
+        },
       },
     };
   }
@@ -35,7 +61,7 @@
 <main>
   <section>
     <div>Calories for</div>
-    <div>12/10/2021</div>
+    <div>{entry.date}</div>
     <div class="big">{entry.calories}</div>
     <div>
       <table>

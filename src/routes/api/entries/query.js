@@ -1,4 +1,16 @@
-export async function get() {
+import { hyper } from '$lib/hyper'
+
+export async function get({ query }) {
+  //console.log(query)
+  const result = await hyper.data.query({
+    type: 'entry',
+    date: query.get('date')
+  })
+  return {
+    status: 200,
+    body: result
+  }
+
   return {
     status: 200,
     body: {

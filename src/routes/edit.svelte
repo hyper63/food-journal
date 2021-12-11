@@ -1,4 +1,8 @@
 <script context="module">
+  import { format } from "date-fns";
+
+  const today = format(new Date(), "yyyy-MM-dd");
+
   export async function load({ page, fetch }) {
     const id = page.query.get('entry') 
     const result = await fetch(`/api/entries/${id}`);
@@ -14,10 +18,13 @@
       status: result.status,
       entry: {
         id,
+        date: today,
+        calories: 0,
         breakfast: 0,
         lunch: 0,
         dinner: 0,
         snacks: 0,
+        steps: 0
       },
     };
   }
@@ -51,7 +58,7 @@
   <h1>Food Journal</h1>
 </header>
 <main>
-  <div class="mb-2">Calories for 12/10/2021</div>
+  <div class="mb-2">Calories for {entry.date}</div>
   <form method="POST" action="/api/entries/{entry.id}" on:submit|preventDefault={handleSubmit}>
     <div>
       <label for="date">Date</label>
