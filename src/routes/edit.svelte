@@ -4,9 +4,8 @@
   const today = format(new Date(), "yyyy-MM-dd");
 
   export async function load({ page, fetch }) {
-    const id = page.query.get('entry') 
+    const id = page.query.get("entry");
     const result = await fetch(`/api/entries/${id}`);
-
     if (result.ok) {
       return {
         props: {
@@ -15,16 +14,17 @@
       };
     }
     return {
-      status: result.status,
-      entry: {
-        id,
-        date: today,
-        calories: 0,
-        breakfast: 0,
-        lunch: 0,
-        dinner: 0,
-        snacks: 0,
-        steps: 0
+      props: {
+        entry: {
+          id,
+          date: today,
+          calories: 0,
+          breakfast: 0,
+          lunch: 0,
+          dinner: 0,
+          snacks: 0,
+          steps: 0,
+        },
       },
     };
   }
@@ -34,8 +34,10 @@
   import { goto } from "$app/navigation";
 
   export let entry;
+  let error;
 
   async function handleSubmit() {
+    error = null;
     const result = await fetch(`/api/entries/${entry.id}`, {
       method: "PUT",
       headers: {
@@ -46,7 +48,7 @@
     if (result.ok) {
       goto("/");
     } else {
-      alert("Error saving journal entry!");
+      error = JSON.stringify((await result.json()).errors.fieldErrors);
     }
   }
 </script>
@@ -59,14 +61,30 @@
 </header>
 <main>
   <div class="mb-2">Calories for {entry.date}</div>
-  <form method="POST" action="/api/entries/{entry.id}" on:submit|preventDefault={handleSubmit}>
+  {#if error}
+    <div class="error">
+      Error(s) occured when trying to submit your journal entry.
+      <br />
+      {error}
+    </div>
+  {/if}
+  <form
+    method="POST"
+    action="/api/entries/{entry.id}"
+    on:submit|preventDefault={handleSubmit}
+  >
     <div>
       <label for="date">Date</label>
       <input type="date" id="date" name="date" bind:value={entry.date} />
     </div>
     <div>
       <label for="breakfast">Breakfast</label>
-      <input id="breakfast" type="number" name="breakfast" bind:value={entry.breakfast} />
+      <input
+        id="breakfast"
+        type="number"
+        name="breakfast"
+        bind:value={entry.breakfast}
+      />
     </div>
     <div>
       <label for="lunch">Lunch</label>
@@ -74,11 +92,21 @@
     </div>
     <div>
       <label for="dinner">Dinner</label>
-      <input id="dinner" type="number" name="dinner" bind:value={entry.dinner} />
+      <input
+        id="dinner"
+        type="number"
+        name="dinner"
+        bind:value={entry.dinner}
+      />
     </div>
     <div>
       <label for="snacks">Snacks</label>
-      <input id="snacks" type="number" name="snacks" bind:value={entry.snacks} />
+      <input
+        id="snacks"
+        type="number"
+        name="snacks"
+        bind:value={entry.snacks}
+      />
     </div>
     <div>
       <label for="steps">Steps</label>
@@ -93,5 +121,12 @@
 <style>
   .mb-2 {
     margin-bottom: 20px;
+  }
+  .error {
+    margin: 8px 0 16px 0;
+    padding: 40px;
+    background: red;
+    border-radius: 8px;
+    color: white;
   }
 </style>
