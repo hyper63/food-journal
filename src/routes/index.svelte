@@ -1,6 +1,6 @@
 <script context="module">
   import { format } from "date-fns";
-  import cuid from "cuid";
+  import { newEntry } from "$lib/entry";
 
   const today = format(new Date(), "yyyy-MM-dd");
 
@@ -10,17 +10,7 @@
     if (result.ok) {
       let entry = await result.json().then(({ docs }) => docs[0]);
       if (!entry) {
-        entry = {
-          id: `entry-${cuid()}`,
-          date: today,
-          type: "entry",
-          calories: 0,
-          breakfast: 0,
-          lunch: 0,
-          dinner: 0,
-          snacks: 0,
-          steps: 0,
-        };
+        entry = newEntry();
       }
       return {
         props: {
@@ -31,17 +21,7 @@
     return {
       status: result.status,
       props: {
-        entry: {
-          id: `entry-${cuid()}`,
-          date: today,
-          type: "entry",
-          calories: 0,
-          breakfast: 0,
-          lunch: 0,
-          dinner: 0,
-          snacks: 0,
-          steps: 0,
-        },
+        entry: newEntry(),
       },
     };
   }

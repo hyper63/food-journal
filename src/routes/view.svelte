@@ -1,4 +1,6 @@
 <script context="module">
+  import { newEntry } from '$lib/entry'
+  
   export async function load({ page, fetch }) {
     const result = await fetch(`/api/entries/${page.query.get("entry")}`);
 
@@ -12,7 +14,7 @@
     return {
       status: result.status,
       props: {
-        entry: {},
+        entry: newEntry(),
       },
     };
   }
