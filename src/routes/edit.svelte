@@ -38,13 +38,25 @@
 
   async function handleSubmit() {
     error = null;
-    const result = await fetch(`/api/entries/${entry.id}`, {
-      method: "PUT",
-      headers: {
-        "content-type": "application/json",
-      },
-      body: JSON.stringify(entry),
-    });
+    let result;
+    if (entry.id === "new") {
+      result = await fetch("/api/entries", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify(entry),
+      });
+    } else {
+      result = await fetch(`/api/entries/${entry.id}`, {
+        method: "PUT",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify(entry),
+      });
+    }
+
     if (result.ok) {
       goto("/");
     } else {

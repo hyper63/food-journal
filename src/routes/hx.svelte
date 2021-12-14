@@ -71,7 +71,7 @@
         <td>{entry.date}</td>
         <td>{entry.calories}</td>
         <td>{entry.steps}</td>
-        <td><a href="/?entry={entry.id}">view</a></td>
+        <td><a href="/view?entry={entry.id}">view</a></td>
       </tr>
     {/each}
   </table>

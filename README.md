@@ -26,6 +26,192 @@ Before we start building we're going to set up our Hyper account and create a Hy
 
 Sign in to Hyper using your `github` account, by going to https://dashboard.hyper.io and clicking the github button, follow the sign workflow, where you will authorize Hyper to use github as and authentication service as well as provide you email information to establish your free account. Once you complete the setup process, you will be shown the Hyper developer dashboard view, in this view you want to click `Add Application` button to create a new Hyper app for this project.
 
+At this point you have two options:
+
+Clone the repository or [Build from Scratch](#build-from-scratch)
+
+
+### Connect to hyper
+
+Lets setup the hyper connection is a lib file called `hyper.js`, in this file we can import `connect` and create a
+hyper instance calling connect([connection string]).
+
+> You can copy the connection string from https://dashboard.hyper.io and add it to the `.env` file, then follow the instructions below.
+
+src/lib/hyper.js
+
+```
+import { connect } from 'hyper-connect'
+
+export const hyper = connect(process.env['HYPER'])
+console.log(await hyper.info.services())
+```
+
+🟢 Lets Go!
+
+
+### Add Food Journal Entry
+
+In this workshop, we have a working frontend and we need to connect it to a working hyper driven backend service. The first task is to create entry records in the hyper data service when a new entry is created. When I click the `edit` link in the application, I am taken to the journal entry form. When I `click` update, if this is the first time the journal entry exists, then I need to add it to the hyper data service.
+
+In the `src/routes/api/entries/index.js` lets modify the post function.
+
+``` js
+import { hyper } from '$lib/hyper'
+
+...
+
+export async function post({ body }) {
+  return cast(body)
+    .then(valid)
+    .then(hyper.data.add)
+    .then(entry => {
+      console.log(entry)
+      return {
+        status: 200,
+        body: {
+          ok: true,
+          id: entry.id
+        }
+      }
+    })
+    .catch(errors => {
+      console.log(errors)
+      return {
+        status: 500,
+        body: {
+          ok: false,
+          errors
+        }
+      }
+    })
+
+}
+
+```
+
+
+### Query Food Journal Entry by Date
+
+Lets get the list of journal entries by date:
+
+src/routes/api/entries/query.js
+
+``` js
+
+import { hyper } from '$lib/hyper'
+import { format } from 'date-fns'
+
+const today = format(new Date(), 'yyyy-MM-dd')
+
+export async function get({ query }) {
+  const result = await hyper.data.query({
+    type: 'entry',
+    date: today
+  })
+  if (result.ok) {
+    return {
+      status: 200,
+      body: result
+    }
+  }
+  return {
+    status: 200,
+    body: {
+      ok: true,
+      docs: [newEntry()]
+    }
+  }
+}
+```
+
+### List Food Journal Entry
+
+In order to paint the list of entries, we need to implement the GET /api/entries endpoint:
+
+src/routes/api/entries/index.js
+
+``` js
+import { hyper } from '$lib/hyper'
+
+...
+
+export async function get() {
+  const result = await hyper.data.query({
+    type: 'entry',
+    userId: 'twilson63'
+  })
+  if (result.ok) {
+    return {
+      status: 200,
+      body: result.docs
+    }
+  }
+  return {
+    status: 200,
+    body: []
+  }
+}
+
+```
+
+### Get Food Journal Entry by id
+
+``` js
+import { hyper } from '$lib/hyper'
+
+...
+
+export async function get ({params}) {
+  const result = await hyper.data.get(params.id)
+  if (result.ok){
+    return {
+      status: 200,
+      body: result
+    }
+  }
+}
+
+```
+
+### Update journal entry
+
+src/routes/api/entries/[id].js
+
+``` js
+...
+
+export async function put ({params, body}) {
+  return cast(body)
+    .then(valid)
+    .then(entry => hyper.data.update(params.id, entry))
+    .then(result => ({
+      status: 200,
+      body: result
+    }))
+    .catch(errors => ({ status: 500, body: { ok: false, errors } }))
+}
+
+```
+
+
+### Calculate and cache total number of steps for current week
+
+
+``` js
+
+```
+
+### Calculate and cache avg number of calories for current week
+
+``` js
+
+```
+
+--- 
+
+## Build from scratch
+
 ## Building the app
 
 Lets start building the SvelteKit app from scratch.
@@ -634,32 +820,3 @@ export function valid(data) {
   return success ? Promise.resolve(data) : Promise.reject(error.format())
 }
 ```
-
-### Connect to hyper
-
-src/lib/hyper.js
-
-```
-import { connect } from 'hyper-connect'
-
-export const hyper = connect(process.env['HYPER'])
-console.log(await hyper.info.services())
-```
-
-### Add/Edit Food Journal Entry
-
-### Query Food Journal Entry by Date
-
-### List Food Journal Entry
-
-### Create Food Journl Entry for previous date
-
-### Get Food Journal Entry by id
-
-### Build average Calories and Steps Metrics
-
-## Bonus: Add User Auth
-
-### Setup
-
-### Configure hooks and cookie sessions

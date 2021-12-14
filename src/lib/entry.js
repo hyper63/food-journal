@@ -1,7 +1,8 @@
 import { z } from 'zod'
 import { format } from 'date-fns'
+import cuid from 'cuid'
 
-const USER = process.env['USER']
+const USER = 'twilson63'
 
 const Entry = z.object({
   id: z.string(),
@@ -52,9 +53,10 @@ const totalCalories = entry => assoc('calories', entry.breakfast + entry.lunch +
 const setUser = entry => assoc('userId', USER, entry)
 const setCreated = entry => !entry.created ? assoc('created', format(new Date(), 'MM/dd/yyyy'), entry) : entry
 const setModified = entry => assoc('modified', format(new Date(), 'MM/dd/yyyy'), entry)
-
+const generateId = entry => entry.id === 'new' ? assoc('id', `entry-${cuid()}`, entry) : entry
 
 export const cast = entry => of(entry)
+  .then(generateId)
   .then(totalCalories)
   .then(setUser)
   .then(setCreated)
