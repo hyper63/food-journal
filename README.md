@@ -635,6 +635,17 @@ export function valid(data) {
 }
 ```
 
+### Connect to hyper
+
+src/lib/hyper.js
+
+```
+import { connect } from 'hyper-connect'
+
+export const hyper = connect(process.env['HYPER'])
+console.log(await hyper.info.services())
+```
+
 ### Add/Edit Food Journal Entry
 
 ### Query Food Journal Entry by Date
